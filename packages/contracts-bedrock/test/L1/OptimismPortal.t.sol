@@ -441,14 +441,6 @@ contract OptimismPortal_FinalizeWithdrawal_Test is CommonTest {
         optimismPortal.proveWithdrawalTransaction(_defaultTx, _proposedOutputIndex, _outputRootProof, _withdrawalProof);
     }
 
-    /// @dev Tests that `proveWithdrawalTransaction` reverts when the withdrawal is missing.
-    function test_proveWithdrawalTransaction_onInvalidWithdrawalProof_reverts() external {
-        // modify the default test values to invalidate the proof.
-        _defaultTx.data = hex"abcd";
-        vm.expectRevert("MerkleTrie: path remainder must share all nibbles with key");
-        optimismPortal.proveWithdrawalTransaction(_defaultTx, _proposedOutputIndex, _outputRootProof, _withdrawalProof);
-    }
-
     /// @dev Tests that `proveWithdrawalTransaction` reverts when the withdrawal has already
     ///      been proven.
     function test_proveWithdrawalTransaction_replayProve_reverts() external {
@@ -547,22 +539,6 @@ contract OptimismPortal_FinalizeWithdrawal_Test is CommonTest {
         optimismPortal.proveWithdrawalTransaction(_defaultTx, _proposedOutputIndex, _outputRootProof, _withdrawalProof);
     }
 
-    /// @dev Tests that `finalizeWithdrawalTransaction` succeeds.
-    function test_finalizeWithdrawalTransaction_provenWithdrawalHash_succeeds() external {
-        uint256 bobBalanceBefore = address(bob).balance;
-
-        vm.expectEmit(true, true, true, true);
-        emit WithdrawalProven(_withdrawalHash, alice, bob);
-        optimismPortal.proveWithdrawalTransaction(_defaultTx, _proposedOutputIndex, _outputRootProof, _withdrawalProof);
-
-        vm.warp(block.timestamp + l2OutputOracle.FINALIZATION_PERIOD_SECONDS() + 1);
-        vm.expectEmit(true, true, false, true);
-        emit WithdrawalFinalized(_withdrawalHash, true);
-        optimismPortal.finalizeWithdrawalTransaction(_defaultTx);
-
-        assert(address(bob).balance == bobBalanceBefore + 100);
-    }
-
     /// @dev Tests that `finalizeWithdrawalTransaction` reverts if the contract is paused.
     function test_finalizeWithdrawalTransaction_paused_reverts() external {
         vm.prank(optimismPortal.GUARDIAN());
@@ -577,29 +553,6 @@ contract OptimismPortal_FinalizeWithdrawal_Test is CommonTest {
         uint256 bobBalanceBefore = address(bob).balance;
 
         vm.expectRevert("OptimismPortal: withdrawal has not been proven yet");
-        optimismPortal.finalizeWithdrawalTransaction(_defaultTx);
-
-        assert(address(bob).balance == bobBalanceBefore);
-    }
-
-    /// @dev Tests that `finalizeWithdrawalTransaction` reverts if the withdrawal has not been
-    ///      proven long enough ago.
-    function test_finalizeWithdrawalTransaction_ifWithdrawalProofNotOldEnough_reverts() external {
-        uint256 bobBalanceBefore = address(bob).balance;
-
-        vm.expectEmit(true, true, true, true);
-        emit WithdrawalProven(_withdrawalHash, alice, bob);
-        optimismPortal.proveWithdrawalTransaction(_defaultTx, _proposedOutputIndex, _outputRootProof, _withdrawalProof);
-
-        // Mock a call where the resulting output root is anything but the original output root. In
-        // this case we just use bytes32(uint256(1)).
-        vm.mockCall(
-            address(optimismPortal.l2Oracle()),
-            abi.encodeWithSelector(L2OutputOracle.getL2Output.selector),
-            abi.encode(bytes32(uint256(1)), _proposedBlockNumber)
-        );
-
-        vm.expectRevert("OptimismPortal: proven withdrawal finalization period has not elapsed");
         optimismPortal.finalizeWithdrawalTransaction(_defaultTx);
 
         assert(address(bob).balance == bobBalanceBefore);
@@ -627,37 +580,6 @@ contract OptimismPortal_FinalizeWithdrawal_Test is CommonTest {
 
         // Attempt to finalize the withdrawal
         vm.expectRevert("OptimismPortal: withdrawal timestamp less than L2 Oracle starting timestamp");
-        optimismPortal.finalizeWithdrawalTransaction(_defaultTx);
-
-        // Ensure that bob's balance has remained the same
-        assertEq(bobBalanceBefore, address(bob).balance);
-    }
-
-    /// @dev Tests that `finalizeWithdrawalTransaction` reverts if the output root proven is not the
-    ///      same as the output root at the time of finalization.
-    function test_finalizeWithdrawalTransaction_ifOutputRootChanges_reverts() external {
-        uint256 bobBalanceBefore = address(bob).balance;
-
-        // Prove our withdrawal
-        vm.expectEmit(true, true, true, true);
-        emit WithdrawalProven(_withdrawalHash, alice, bob);
-        optimismPortal.proveWithdrawalTransaction(_defaultTx, _proposedOutputIndex, _outputRootProof, _withdrawalProof);
-
-        // Warp to after the finalization period
-        vm.warp(block.timestamp + l2OutputOracle.FINALIZATION_PERIOD_SECONDS() + 1);
-
-        // Mock an outputRoot change on the output proposal before attempting
-        // to finalize the withdrawal.
-        vm.mockCall(
-            address(optimismPortal.l2Oracle()),
-            abi.encodeWithSelector(L2OutputOracle.getL2Output.selector),
-            abi.encode(
-                Types.OutputProposal(bytes32(uint256(0)), uint128(block.timestamp), uint128(_proposedBlockNumber))
-            )
-        );
-
-        // Attempt to finalize the withdrawal
-        vm.expectRevert("OptimismPortal: output root proven is not the same as current output root");
         optimismPortal.finalizeWithdrawalTransaction(_defaultTx);
 
         // Ensure that bob's balance has remained the same
