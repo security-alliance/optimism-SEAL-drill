@@ -1,0 +1,97 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    # platform: linux/amd64
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prom_data:/prometheus
+      - ./prometheus/alerting_rules.yml:/etc/prometheus/alerting_rules.yml
+  # alertmanager server
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    # platform: linux/amd64
+    restart: always
+    ports:
+      - 9093:9093
+    volumes:
+      - ./prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+  grafana:
+    image: grafana/grafana
+    # platform: linux/amd64
+    container_name: grafana
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+    volumes:
+      - ./grafana:/etc/grafana/provisioning/datasources
+  balance-mon:
+    build:
+      context: ../../
+      target: balance-mon
+      dockerfile: ops-seal/docker/Dockerfile.packages
+    # platform: linux/amd64
+    restart: always
+    container_name: 'balance-mon'
+    ports:
+      - 7300:7300
+    env_file:
+      - ../../packages/chain-mon/.env.chain-mon.dev
+  fault-mon:
+    build:
+      context: ../../
+      target: fault-mon
+      dockerfile: ops-seal/docker/Dockerfile.packages
+    # platform: linux/amd64
+    restart: always
+    container_name: 'fault-mon'
+    ports:
+      - 7301:7301
+    env_file:
+      - ../../packages/chain-mon/.env.chain-mon.dev
+  initialized-upgraded-mon:
+    build:
+      context: ../../
+      target: initialized-upgraded-mon
+      dockerfile: ops-seal/docker/Dockerfile.packages
+    # platform: linux/amd64
+    restart: always
+    container_name: 'initialized-upgraded-mon'
+    ports:
+      - 7302:7302
+    env_file:
+      - ../../packages/chain-mon/.env.chain-mon.dev
+  wallet-mon:
+    build:
+      context: ../../
+      target: wallet-mon
+      dockerfile: ops-seal/docker/Dockerfile.packages
+    # platform: linux/amd64
+    restart: always
+    container_name: 'wallet-mon'
+    ports:
+      - 7304:7304
+    env_file:
+      - ../../packages/chain-mon/.env.chain-mon.dev
+  wd-mon:
+    build:
+      context: ../../
+      target: wd-mon
+      dockerfile: ops-seal/docker/Dockerfile.packages
+    # platform: linux/amd64
+    restart: always
+    container_name: 'wd-mon'
+    ports:
+      - 7303:7303
+    env_file:
+      - ../../packages/chain-mon/.env.chain-mon.dev
+volumes:
+  prom_data:

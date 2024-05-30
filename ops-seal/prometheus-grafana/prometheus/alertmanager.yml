@@ -1,0 +1,36 @@
+global:
+  resolve_timeout: 1m
+  opsgenie_api_key: f064a41b-a2da-4e30-b565-922696ac9db2
+
+route:
+  group_by: ['instance', 'severity']
+  # wait to send notification
+  group_wait: 1s
+  # wait to resend notification
+  repeat_interval: 1h
+  routes:
+  - match:
+      # demo alert
+      alertname: balance-mon-has-balance-seal
+  - match:
+      alertname: fault-detector-stalled-seal
+  - match:
+      alertname: fault-detector-error-unhandled-seal
+  - match:
+      alertname: fault-detector-mismatch-detected-seal
+  - match:
+      alertname: two-step-withdraw-forgery-detection-stalled-seal
+  - match:
+      alertname: two-step-withdraw-forgery-detection-error-unhandled-seal
+  - match:
+      alertname: two-step-withdraw-forgery-detected-seal
+  receiver: 'ops-genie-alerts'
+
+receivers:
+# configuration for OpsGenie
+- name: 'ops-genie-alerts'
+  opsgenie_configs:
+  - api_url: "https://api.opsgenie.com/"
+    message: "{{ .CommonAnnotations.summary }}"
+    description: "{{ .CommonAnnotations.runbook_url }}"
+    priority: "{{ .CommonLabels.severity }}"

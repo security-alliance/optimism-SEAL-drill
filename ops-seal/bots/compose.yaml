@@ -1,0 +1,28 @@
+services:
+  seal-bot-op:
+    build:
+      context: ../../
+      target: seal-bot
+      dockerfile: ops-seal/docker/Dockerfile.packages
+    # platform: linux/amd64
+    restart: always
+    command: ["dev:seal-bot"]
+    container_name: 'seal-bot-op'
+    ports:
+      - 7401:7401
+    env_file:
+      - ../../packages/chain-mon/.env.seal-bot-op
+  seal-bot-base:
+    build:
+      context: ../../
+      target: seal-bot
+      dockerfile: ops-seal/docker/Dockerfile.packages
+    # platform: linux/amd64
+    restart: always
+    command: ["dev:seal-bot"]
+    container_name: 'seal-bot-base'
+    ports:
+      - 7402:7402
+    env_file:
+      - ../../packages/chain-mon/.env.seal-bot-base
+

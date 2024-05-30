@@ -1,0 +1,9 @@
+export SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/[ALCHEMY_API_KEY]
+export DEPLOY_PRIVATE_KEY=
+
+export L2_OUTPUT_ORACLE_START=1715039856
+
+export L2_OUTPUT_ORACLE_ADDRESS=0x3fE6d1F8721189b05FAC2525b6794cEB3e492273
+
+export L2_RPC_URL=https://rpc-collective-tomato-termite-rruhqyq8l4.t.conduit.xyz
+
