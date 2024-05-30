@@ -1,6 +1,6 @@
 global:
   resolve_timeout: 1m
-  opsgenie_api_key: f064a41b-a2da-4e30-b565-922696ac9db2
+  opsgenie_api_key: ${OPSGENIE_API_KEY}
 
 route:
   group_by: ['instance', 'severity']

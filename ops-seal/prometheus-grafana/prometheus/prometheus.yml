@@ -37,11 +37,6 @@ scrape_configs:
     scheme: http
     static_configs:
       - targets:
-          # - balance-mon:7300
-          # - fault-mon:7301
-          # - initialized-upgraded-mon:7302
-          # - wallet-mon:7304
-          # - wd-mon:7303
           - balance-mon:7300
           - fault-mon-op:7301
           - initialized-upgraded-mon-op:7302
@@ -51,7 +46,3 @@ scrape_configs:
           - initialized-upgraded-mon-base:7306
           - wallet-mon-base:7308
           - wd-mon-base:7307
-          # - chain-mon:7301
-          # - chain-mon:7302
-          # - chain-mon:7303
-          # - chain-mon:7304
