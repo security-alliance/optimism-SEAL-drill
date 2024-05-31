@@ -71,15 +71,15 @@ contract CommonScript is Script {
     _loadAddresses(contractsPath);
 
     proxyAdmin = ProxyAdmin(get('ProxyAdmin').addr);
-    optimismPortal = OptimismPortal(get('OptimismPortal').addr);
-    l2OutputOracle = L2OutputOracle(get('L2OutputOracle').addr);
-    systemConfig = SystemConfig(get('SystemConfig').addr);
+    optimismPortal = OptimismPortal(get('OptimismPortalProxy').addr);
+    l2OutputOracle = L2OutputOracle(get('L2OutputOracleProxy').addr);
+    systemConfig = SystemConfig(get('SystemConfigProxy').addr);
     safe = Safe(get('SystemOwnerSafe').addr);
-    l1CrossDomainMessenger = L1CrossDomainMessenger(get('L1CrossDomainMessenger').addr);
-    l1Erc721Bridge = L1ERC721Bridge(get('L1ERC721Bridge').addr);
-    crossDomainMessenger = CrossDomainMessenger(get('L1CrossDomainMessenger').addr);
-    l1StandardBridge = L1StandardBridge(get('L1StandardBridge').addr);
-    optimismMintableERC20Factory = OptimismMintableERC20Factory(get('OptimismMintableERC20Factory').addr);
+    l1CrossDomainMessenger = L1CrossDomainMessenger(get('L1CrossDomainMessengerProxy').addr);
+    l1Erc721Bridge = L1ERC721Bridge(get('L1ERC721BridgeProxy').addr);
+    crossDomainMessenger = CrossDomainMessenger(get('L1CrossDomainMessengerProxy').addr);
+    l1StandardBridge = L1StandardBridge(get('L1StandardBridgeProxy').addr);
+    optimismMintableERC20Factory = OptimismMintableERC20Factory(get('OptimismMintableERC20FactoryProxy').addr);
     superchainConfig = SuperchainConfig(get('SuperchainConfigProxy').addr);
     optimismPortalImplementation = get('OptimismPortal').addr;
     l2OutputOracleImplementation = get('L2OutputOracle').addr;
