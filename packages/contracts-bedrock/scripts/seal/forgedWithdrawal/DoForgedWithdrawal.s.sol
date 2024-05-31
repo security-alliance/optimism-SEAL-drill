@@ -13,17 +13,14 @@ import {SystemConfig} from 'src/L1/SystemConfig.sol';
 import {CommonScript} from '../CommonScript.sol';
 import {Types} from 'src/libraries/Types.sol';
 
-contract Deploy is CommonScript {
+contract DoForgedWithdrawal is CommonScript {
   function setUp() public {
     setUpScripts();
   }
 
   function run() public {
 
-    string memory root = vm.projectRoot();
-
-
-    string memory storedWithdrawalsPath = string.concat(vm.projectRoot(), '/scripts/seal/forgedWithdrawal/stored_withdrawals/');
+    string memory storedWithdrawalsPath = string.concat(vm.projectRoot(), '/scripts/seal/forgedWithdrawal/');
     string memory storedWithdrawalFileName = 'forgedWithdrawal.json';
     string memory jsonPath = string.concat(storedWithdrawalsPath, storedWithdrawalFileName);
 
